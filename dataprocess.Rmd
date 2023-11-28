@@ -1,0 +1,200 @@
+---
+title: "data.process"
+author: "Sangyi Su"
+date: "2023-11-28"
+output: html_document
+---
+
+
+```{r}
+data_heart = read.csv("mydata.csv")
+```
+
+
+
+# transform
+```{r}
+unique(data_heart$C15VRPAIN)
+```
+```{r}
+data_heart$C15VRPAIN <- ifelse(data_heart$C15VRPAIN == "(1) Not at all", 1,
+                               ifelse(data_heart$C15VRPAIN == "(2) A little bit", 2,
+                                      ifelse(data_heart$C15VRPAIN == "(3) Moderately", 3,
+                                             ifelse(data_heart$C15VRPAIN == "(4) Quite a bit", 4,
+                                                    ifelse(data_heart$C15VRPAIN == "(5) Extremely", 5, NA)))))
+
+```
+
+
+```{r}
+unique(data_heart$C15CMPWHO)
+```
+
+
+```{r}
+data_heart$C15CMPWHO <- ifelse(data_heart$C15CMPWHO == "(1) Person to whom survey was addressed (Go to Q64)", 1,
+                                       ifelse(data_heart$C15CMPWHO == "(2) Family member or relative of person to whom the survey was addressed", 2,
+                                              ifelse(is.na(data_heart$C15CMPWHO), NA,
+                                                     ifelse(data_heart$C15CMPWHO == "(3) Friend of person to whom the survey was addressed", 3,
+                                                            ifelse(data_heart$C15CMPWHO == "(4) Professional caregiver of person to whom the survey was addressed", 4, NA)))))
+```
+
+```{r}
+unique(data_heart$C15DEPWEEK)
+```
+
+```{r}
+data_heart$C15DEPWEEK <- ifelse(data_heart$C15DEPWEEK == "(1) Rarely or none of the time", 1,
+                                        ifelse(data_heart$C15DEPWEEK == "(2) Some or a little of the time", 2,
+                                               ifelse(is.na(data_heart$C15DEPWEEK), NA,
+                                                      ifelse(data_heart$C15DEPWEEK == "(3) Occasionally or a moderate amount of the time", 3,
+                                                             ifelse(data_heart$C15DEPWEEK == "(4) Most or all of the time", 4, NA)))))
+
+```
+
+
+```{r}
+unique(data_heart$C15SMOKE)
+```
+
+
+
+```{r}
+data_heart$C15SMOKE <- ifelse(data_heart$C15SMOKE == "(1) Every day", 1,
+                                       ifelse(data_heart$C15SMOKE == "(2) Some days", 2,
+                                              ifelse(data_heart$C15SMOKE == "(3) Not at all", 3,
+                                                     ifelse(is.na(data_heart$C15SMOKE), NA,
+                                                            ifelse(data_heart$C15SMOKE == "(4) Don't know", 4, NA)))))
+
+```
+
+# PLOT THE REGION DISTRIBUTION
+```{r}
+unique(data_heart$P15PLREGCDE)
+```
+```{r}
+data_heart$P15PLREGCDE <- ifelse(data_heart$P15PLREGCDE == "(01) Region 1 - Boston (CT, ME, MA, NH, RI, and VT)", 1,
+                                         ifelse(data_heart$P15PLREGCDE == "(02) Region 2 - New York (NY, NJ, PR, and the VI)", 2,
+                                                ifelse(data_heart$P15PLREGCDE == "(03) Region 3 - Philadelphia (DE, DC, MD, PA, VA, and WV)", 3,
+                                                       ifelse(data_heart$P15PLREGCDE == "(04) Region 4 - Atlanta (AL, FL, GA, KY, MS, NC, SC, and TN)", 4,
+                                                              ifelse(data_heart$P15PLREGCDE == "(05) Region 5 - Chicago (IL, IN, MI, MN, OH, and WI)", 5,
+                                                                     ifelse(data_heart$P15PLREGCDE == "(06) Region 6 - Dallas (AR, LA, NM, OK, and TX)", 6,
+                                                                            ifelse(data_heart$P15PLREGCDE == "(07) Region 7 - Kansas City (IA, KS, MO, and NE)", 7,
+                                                                                   ifelse(data_heart$P15PLREGCDE == "(08) Region 8 - Denver (CO, MT, ND, SD, UT, and WY)", 8,
+                                                                                          ifelse(data_heart$P15PLREGCDE == "(09) Region 9 - San Francisco (AZ, CA, Guam, HI, and NV)", 9,
+                                                                                                 ifelse(data_heart$P15PLREGCDE == "(10) Region 10-Seattle (AK, ID, OR, and WA)", 10, NA))))))))))
+
+```
+
+```{r}
+hist(data_heart$P15PLREGCDE)
+```
+
+
+# PLOT THE SAMPLED(ELIGIBLE FOR FOLLOW UP
+```{r}
+unique(data_heart$SAMPLED)
+```
+
+```{r}
+data_heart$SAMPLED <- ifelse(data_heart$SAMPLED == "(1) Eligible for Follow Up", 1,
+                                     ifelse(data_heart$SAMPLED == "(2) Not Eligible for Follow Up", 0, NA))
+hist(data_heart$SAMPLED)
+```
+# WE DELETE THE INELIGIABLE
+```{R}
+data_heart = subset(data_heart,data_heart$SAMPLED != 0)
+```
+
+# SFLAG(SOME DEAD)
+```{r}
+unique(data_heart$SFLAG)
+```
+
+
+```{r}
+data_heart$SFLAG <- ifelse(data_heart$SFLAG == "(1) Respondent", 1,
+                                   ifelse(data_heart$SFLAG == "(2) Non-respondent", 2,
+                                          ifelse(data_heart$SFLAG == "(3) Ineligible", 3,
+                                                 ifelse(data_heart$SFLAG == "(4) Disenrolled", 4,
+                                                        ifelse(data_heart$SFLAG == "(5) Dead", 5, NA)))))
+
+hist(data_heart$SFLAG)
+```
+# we only use respondents'data
+```{r}
+data_heart = subset(data_heart,data_heart$SFLAG == 1)
+```
+
+# delete the column cohort(equal value,80)
+```{r}
+data_heart = data_heart[,!names(data_heart)%in%c("COHORT","SFLAG","SAMPLED")]
+```
+
+
+# C15MUILKG
+
+```{R}
+unique(data_heart$C15MUILKG)
+```
+
+```{r}
+data_heart$C15MUILKG <- ifelse(data_heart$C15MUILKG == "(1) Yes (Go to Q43)", 1,
+                                       ifelse(data_heart$C15MUILKG == "(2) No (Go to Q46)", 0,
+                                              NA))
+```
+
+# c15paotlk
+```{r}
+unique(data_heart$C15PAOTLK)
+```
+
+```{r}
+data_heart$C15PAOTLK <- ifelse(data_heart$C15PAOTLK == "(1) Yes (Go to Q47)", 1,
+                                       ifelse(data_heart$C15PAOTLK == "(2) No (Go to Q47)", 0,
+                                              ifelse(data_heart$C15PAOTLK == "(3) I had no visits in the past 12 months (Go to Q48)", 2,
+                                                     NA)))
+
+
+```
+
+# columns: c15srvdisp, c15srvmode,R15SRVDISP,R15SRVMODE,
+```{r}
+unique(data_heart$C15SRVDISP) # Cohort 15 Baseline survey disposition code. For survey disposition codes, M=Mail and T=Telephone
+```
+
+```{r}
+unique(data_heart$C15SRVMODE) #Cohort 15 Baseline survey round code for completed, partially completed, and non-completed surveys by mail (M) or telephone (T)
+
+```
+
+
+```{r}
+unique(data_heart$R15SRVDISP)  #Cohort 15 Follow Up survey disposition code. Note: For survey disposition codes, M=Mail and T=Telephone.
+barplot(table(data_heart$R15SRVDISP))
+```
+
+
+```{r}
+unique(data_heart$R15SRVMODE) # Cohort 15 Follow Up survey round code for completed, partially completed, and non-completed surveys by mail (M) or telephone(T).
+barplot(table(data_heart$R15SRVMODE))
+```
+# OUTPUT .CVS FILE
+```{R}
+write.csv(data_heart,"ori_data.csv",row.names = F)
+```
+
+# try mice
+
+```{r}
+library(mice)
+data_mice = mice(data_heart,method = "sample",m = 1)
+
+completed_data = complete(data_mice)
+```
+
+```{R}
+write.csv(completed_data,"completed_data.csv",row.names = F)
+
+unique(completed_data$R15SRVDISP)
+```
