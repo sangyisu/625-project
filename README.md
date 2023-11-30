@@ -25,8 +25,17 @@ After deleting the ID column, we have 75+1 features for now in 'completed_data.c
 2.Oridinal Variables: "AGE"  "EDUC" (2)
 
 3.Nominal Variables: "GENDER" "RACE" "C15VRGENHTH" "C15VRMACT"   "C15VRSTAIR"  "C15VRPACCL"  "C15VRPWORK"  "C15VRMACCL"  "C15VRMWORK"  "C15VRPAIN"  "C15VRCALM"   "C15VRENERGY" "C15VRDOWN"   "C15VRSACT"  "C15VRPHCMP"  "C15VRMHCMP"  "C15ADLBTH"   "C15ADLDRS"   "C15ADLEAT"  "C15ADLCHR"   "C15ADLWLK"   "C15ADLTLT"   "C15HDPHY"    "C15HDMEN"    "C15HDACT"    "C15CHSTEX"   "C15CHSTRST"  "C15SOBFLT"   "C15SOBSIT"   "C15SOBWLK"   "C15SOBSTR"   "C15FTNUMB"   "C15FTSENS"   "C15FTHC"  "C15FTSRS"    "C15PNART"    "C15PNBACK"   "C15DEPWEEK"  "C15CMPHTH"  "C15SMOKE"    "C15PAOTLK"   "C15FRMTLK"   "C15FRMPREV"  "C15CMPWHO"  "C15SRVDISP"  "C15SRVMODE"  "C15PCTCMP"   "C15SRVLANG" (48)
+
+![Screenshot 2023-11-30 121957](https://github.com/sangyisu/625-project/assets/117102360/6ca97866-a7d7-478a-9369-cf5e2ed15306)
+
   
 - Methods for feature selection
-1. pearson correlation
-2. chi-suquared test
-3. 
+1. Chi-Suquared Feature Selection
+   
+3. Mutual Information Feature Selection
+
+## Model Built
+
+- Model Built Using Chi-Squared Features
+
+- Model Built Using Mutual Information Features
