@@ -14,7 +14,12 @@
 ## Feature Selection
 After deleting the ID column, we have 75+1 features for now in 'completed_data.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
 
- - Methods for feature selection
+- the structure of the dataset
+
+![Screenshot 2023-11-27 230916](https://github.com/sangyisu/625-project/assets/117102360/66b869d5-1c06-4ec5-85ea-9c6aeeab1175)
+
+  
+- Methods for feature selection
 1. pearson correlation
 2. chi-suquared test
 3. 
