@@ -11,3 +11,5 @@
 
 4. do imputation using mice function with 5 iterations. Then, we get the "completed_data.csv" file.
 
+## Feature Selection
+We have 76+1 features for now in 'completed_data.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
