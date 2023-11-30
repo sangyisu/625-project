@@ -16,7 +16,7 @@ After deleting the ID column, we have 75+1 features for now in 'completed_data.c
 
 - the structure of the dataset
 
-![Screenshot 2023-11-27 230916](https://github.com/sangyisu/625-project/assets/117102360/66b869d5-1c06-4ec5-85ea-9c6aeeab1175)
+![Screenshot 2023-11-30 115513](https://github.com/sangyisu/625-project/assets/117102360/888bd7cd-02c4-45be-a0b3-840ee4b6fb7f)
 
   
 - Methods for feature selection
