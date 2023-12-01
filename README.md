@@ -31,6 +31,11 @@ After deleting the ID column, we have 75+1 features for now in 'completed_data.c
   
 - Methods for feature selection
 1. Chi-Suquared Feature Selection
+   use pair-wise chi-squared test
+   
+![Screenshot 2023-11-30 201308](https://github.com/sangyisu/625-project/assets/117102360/06996956-b0c6-4ccf-9017-0b65a60324df)
+
+
    
 3. Mutual Information Feature Selection
 
