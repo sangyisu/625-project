@@ -16,7 +16,8 @@ After deleting the ID column, we have 75+1 features for now in 'completed_data.c
 
 - the structure of the dataset
 
-![Screenshot 2023-11-30 115513](https://github.com/sangyisu/625-project/assets/117102360/888bd7cd-02c4-45be-a0b3-840ee4b6fb7f)
+![Screenshot 2023-12-01 000938](https://github.com/sangyisu/625-project/assets/117102360/b701bc7d-9e98-4ebf-b8f9-9d4b02ca8fba)
+
 
 - The types of Variables(76)
 
