@@ -1,0 +1,264 @@
+---
+title: "plots"
+author: "Sangyi Su"
+date: "2023-11-28"
+output: html_document
+---
+
+# barplot-test outliers
+
+# EDA
+
+# 
+
+```{r}
+data = read.csv("completed_data.csv")
+
+df = as.data.frame(lapply(data,as.factor))
+
+# delete the column include R15, we only use C15
+df = df[,!names(df)%in%c("CASE_ID","R15SRVDISP","R15SRVMODE","P15PLREGCDE")]
+str(df)
+```
+
+```{r}
+two_levels_columns <- sapply(df, function(col) length(unique(col))  > 5)
+
+# Display the column names with only 2 levels
+(name = names(df)[two_levels_columns])
+sum(!is.na(name))
+```
+
+# Features Selection
+
+```{r}
+library(mlbench)# For data
+set.seed(1234)
+# chi-squared
+df$C15HDACT = as.numeric(df$C15HDACT)
+df$C15HDPHY = as.numeric(df$C15HDPHY)
+df$C15HDMEN = as.numeric(df$C15HDMEN)
+df$C15PCTCMP = as.numeric(df$C15PCTCMP)
+X_squared <- sapply(1:76, function(i) {
+  stat <- chisq.test(df[, i], df[, 47])
+  stat$statistic
+})
+p_value <-sapply(1:76, function(i) {
+  stat <- chisq.test(df[, i], df[, 47])
+  stat$p.value
+})
+
+names = names(df)
+indepedent = cbind(names,X_squared,p_value)
+
+
+x = chisq.test(df[,70],df[,47])
+x
+```
+
+```{r}
+str(df)
+```
+
+
+
+```{r}
+x$p.value
+indepedent = as.data.frame(indepedent)
+typeof(indepedent$X_squared)
+table <- indepedent[order(as.numeric(indepedent$X_squared),decreasing = T),]
+head(table)
+name = table[table$p_value==0,1]
+name1 = table[1:52,1]
+name1
+length(name)
+sum(name == name1)
+```
+
+# split
+
+```{r}
+library(caret)
+set.seed(123123)
+# 3% of observations
+df_5 = sample_n(df,2963*3)
+# Create an index for splitting (70% training, 30% testing)
+splitIndex <- createDataPartition(df_5$C15CCMI, p = 0.7, list = FALSE)
+
+# Create training and testing sets
+train_set <- df_5[splitIndex, names(df_5) %in% name]
+test_set <- df_5[-splitIndex, names(df_5) %in% name]
+#
+data_select = df[, names(df) %in% name]
+
+```
+
+# REDUCE THE FEATURES: rank features by importance
+
+```{R}
+library(mlbench)
+library(caret)
+set.seed(123)
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+model <- train(C15CCMI ~ ., data=data_select, method="lvq", preProcess="scale", trControl=control,tuneGrid = expand.grid(size = 1:10, k = 10))
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+```
+
+```{r}
+str(train_set$C15HDACT)
+str(train_set$C15HDPHY)
+str(train_set$C15HDMEN)
+
+```
+
+# too many obervations--10% of test and train dataset
+
+```{r}
+library(MASS)
+library(R2jags)
+library(dplyr)
+library(coda)
+
+```
+
+# glm
+
+```{r}
+glm.fit = glm(C15CCMI ~ ., data = train_set,family = binomial)
+summary(glm.fit)
+```
+
+```{r}
+# Check and match levels in categorical variables
+for (col in names(train_set)) {
+  if (is.factor(train_set[[col]]) && is.factor(test_set[[col]])) {
+    levels_test <- levels(test_set[[col]])
+    levels_train <- levels(train_set[[col]])
+    
+    # Ensure levels match
+    if (!identical(levels_train, levels_test)) {
+      levels_to_add <- setdiff(levels_train, levels_test)
+      levels_to_remove <- setdiff(levels_test, levels_train)
+      
+      # Add missing levels to test set
+      for (level in levels_to_add) {
+        test_set[[col]][is.na(test_set[[col]])] <- level
+      }
+      
+      # Remove extra levels from test set
+      test_set[[col]] <- factor(test_set[[col]], levels = levels_train)
+    }
+  }
+}
+# Check distribution of the target variable in both sets
+table(train_set$C15CCMI)
+table(test_set$C15CCMI)
+
+```
+
+```{r}
+pred.glm <- predict(glm.fit, test_set, type = "response")
+pred.glm[pred.glm > 0.5] <- 1
+pred.glm[pred.glm < 0.5] <- 0
+true <- test_set$C15CCMI
+table(pred.glm, true)
+mean(pred.glm == true)
+```
+
+# svm
+
+```{r}
+library(e1071)
+svm_model <- svm(C15CCMI ~ ., data = train_set, kernel = "linear",cost=10)
+summary(svm_model)
+```
+
+```{r}
+pred.svm <- predict(svm_model, test_set, type = "response")
+true <- test_set$C15CCMI
+table(pred.svm, true)
+mean(pred.svm == true)
+```
+
+# NB
+
+```{r}
+nb_model <- naiveBayes(C15CCMI ~ ., data = train_set)
+
+print(nb_model)
+```
+
+```{r}
+pred.nb <- predict(nb_model, test_set, type = "class")
+true <- test_set$C15CCMI
+table(pred.nb, true)
+mean(pred.nb == true)
+```
+
+# RF
+
+```{r}
+# Create a Random Forest model
+library(randomForest)
+rf_model <- randomForest(C15CCMI ~ ., data = train_set)
+
+print(rf_model)
+
+```
+
+```{r}
+pred.rf <- predict(rf_model, test_set)
+true <- test_set$C15CCMI
+table(pred.rf, true)
+mean(pred.rf == true)
+```
+
+# BOOST
+
+```{R}
+library(xgboost)
+set.seed(123)
+data1 = as.matrix(train_set[, -37])
+str(data1)
+
+train_matrix <- xgb.DMatrix(data = data1, label = train_set$C15CCMI)
+
+test_matrix <- xgb.DMatrix(data = as.matrix(test_set[1,-37]), label = test_set$C15CCMI)
+
+```
+
+# KNN
+
+```{R}
+library(class)
+# Train kNN model
+k <- 3  # Set the number of neighbors
+knn_model <- knn(train_matrix, test_matrix, train_set$C15CCMI, k)
+
+# Evaluate accuracy
+knn_accuracy <- sum(knn_model == test_set$C15CCMI) / nrow(test_set)
+print(paste("kNN Accuracy:", knn_accuracy))
+
+```
+
+# decision trees
+
+```{r}
+set.seed(123123)
+library(tree)
+tree_model <- tree(C15CCMI ~ ., data = train_set)
+
+# Make predictions on the test set
+tree_pred <- predict(tree_model, newdata = test_set, type = "class")
+
+# Evaluate accuracy
+tree_accuracy <- sum(tree_pred == test_set$C15CCMI) / nrow(test_set)
+print(paste("Decision Tree Accuracy:", tree_accuracy))
+
+```
