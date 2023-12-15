@@ -35,7 +35,7 @@ Our study utilizes data from the 15th cohort of the Medicare Health Outcomes Sur
 
 ### *Missing value and imputation*
 
-The dataset contains a substantial volume of missing values, which can be attributed to its extensive size and the nature of the survey data. The dataset notably comprises approximately 16.6 million missing values (35% of the total), posing a significant challenge for analysis. To refine the dataset for more effective analysis, variables with over 20% missing data were omitted, leading to a more manageable set of 296,320 entries across 79 variables (without the ID and cohort columns).
+The dataset contains a substantial volume of missing values, which can be attributed to its extensive size and the nature of the survey data. The dataset notably comprises approximately 3.37 million missing entries (13% of the total), posing a significant challenge for analysis. To refine the dataset for more effective analysis, variables with over 20% missing data were omitted, leading to a more manageable set of 296,320 entries across 79 variables (without the ID and cohort columns).
 
 In the refined dataset, approximately 2.1 million missing values, constituting 10% of the data, were identified. To address this, the Multivariate Imputation by Chained Equations (mice) function, using the Predictive Mean Matching (pmm) method, was used for imputation. It imputes missing values based on a sequence of linear regressions. Considering the function's compatibility, the dataset was separated into two subsets based on their data types (numeric or character) prior to applying the imputation process.
 
