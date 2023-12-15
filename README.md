@@ -1,7 +1,7 @@
 # Project 625: Prediction of the risk of a Myocardial Infarction or Heart Attack using different Machine Learning 
 
 
-## file
+## File
 625finalcodes.rmd :  all code
 
 final report : report 
@@ -9,6 +9,10 @@ final report : report
 ori_data : raw data
 
 imputed data : 
+
+## Challenges:
+
+
 
 
 ## preprocessing
