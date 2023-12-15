@@ -16,6 +16,7 @@ imputed data ("mice_data29w.csv" ) :  https://drive.google.com/file/d/1T7QF7F4Sp
 2. The Multivariate Imputation by Chained Equations (MICE) function, particularly using the Predictive Mean Matching (PMM) method, struggled with the multi-type nature of our data.
 3. The dataset was too large for imputation using mice and the imputation process was extremely slow.
 4. The imputation for each machine learning model was also time-consuming.
+5. We used cluster in "Biostat" and "Great Lakes" to run the parallel processes.
 
 ## preprocessing
 - Dataset selection
