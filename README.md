@@ -18,7 +18,7 @@ imputed data ("mice_data29w.csv" ) :  https://drive.google.com/file/d/1T7QF7F4Sp
 4. The imputation for each machine learning model was also time-consuming.
 
 ## preprocessing
-- dataset selection
+- Dataset selection
 
 We select the columns with "C15" in names. Thus we get the dataset with information of 2012 survey. And the dataset includes 296320 observations of 88 variables.
 
