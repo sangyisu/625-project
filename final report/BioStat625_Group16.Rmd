@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-Heart attack is associated with both mortality and economic costs. Early and accurate prediction of heart attack is crucial in medical care. Our study uses five machine learning models to predict heart attack risks, analyzing and comparing their accuracy. The research aims to enhance early detection of heart issues, potentially reducing health and financial burdens. Additionally, it offers insights into handling missing values in large datasets, a common challenge in big data analysis within healthcare.
+Heart attack is associated with both mortality and economic costs. Early and accurate prediction of heart attack is crucial in medical care. Our study uses five machine learning models to predict heart attack risks, analyzing and comparing their accuracy. The research aims to enhance early detection of heart issues, potentially reducing health and financial burdens. Additionally, it offers insights into handling missing values in large and complex datasets, a common challenge in big data analysis within healthcare.
 
 ## Introduction
 
