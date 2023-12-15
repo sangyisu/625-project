@@ -1,6 +1,13 @@
 # Project 625: Prediction of the risk of a Myocardial Infarction or Heart Attack using different Machine Learning 
 
 
+## file
+625finalcodes.rmd :  full code
+final report : report 
+ori_data : raw data
+imputed data : 
+
+
 ## preprocessing
 - dataset selection
 We select the columns with "C15" in names. Thus we get the dataset with information of 2012 survey. And the dataset includes 296320 observations of 88 variables.
