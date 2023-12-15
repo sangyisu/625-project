@@ -2,17 +2,22 @@
 
 
 ## file
-625finalcodes.rmd :  full code
+625finalcodes.rmd :  all code
+
 final report : report 
+
 ori_data : raw data
+
 imputed data : 
 
 
 ## preprocessing
 - dataset selection
+
 We select the columns with "C15" in names. Thus we get the dataset with information of 2012 survey. And the dataset includes 296320 observations of 88 variables.
 
 - Missing data
+
 1. we select variables with low rate of missing data(<20%), and then we get a dataset with 296320 observations of 81 variables.
 
 2. we delete ID and COHORT columns. (81-2 = 79)
@@ -20,6 +25,7 @@ We select the columns with "C15" in names. Thus we get the dataset with informat
 3. do imputation using mice function with 1 iterations. Then, we get the "mice_data29w.csv" file. The dataset includes 296320 observations of 79 variables.
 
 ## Feature Selection
+
  we have 79 features for now in 'mice_data29w.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
 
 - the structure of the dataset
@@ -48,11 +54,13 @@ We select the columns with "C15" in names. Thus we get the dataset with informat
 
 
 ## Machine Learning Models
+
 Model Built Using Mutual Information Features
 
 - Logistic regression
 
 - Support Vector Method
+
 For this model, the training data comprises a randomly selected subset of 10,000
 observations from the large training dataset, while the test data consists of 4,200 observations from the large
 testing dataset. In the case of support vector machines, the cost value is carefully adjusted through tuning,
@@ -62,10 +70,12 @@ and the best-performing cost value is found to be 15.
 
 
 - Naive Bayes
+  
 For our study, we fine-tuned the Laplace parameter of Naive Bayes and found that a value of 0 was optimal (Figure 2). This adjustment enhanced the accuracy of our results.
 ![figure2](https://github.com/sangyisu/625-project/assets/117102360/9ecbe924-a06d-46db-8aff-88f3ba8f3a71)
 
 - Random Forest
+  
 In our study, the ‘ntree’ (number of trees) and ‘mtry’ (number of features tried at each split) parameters were adjusted meticulously within the Random Forest model. The optimal configuration is ntree
 = 300 and mtry =8.831761.
 
@@ -74,6 +84,7 @@ In our study, the ‘ntree’ (number of trees) and ‘mtry’ (number of featur
 ![figure4](https://github.com/sangyisu/625-project/assets/117102360/c0a89268-f57b-468f-a152-f4807c3f7b26)
 
 - Decision Tree
+  
 The Decision Tree model operates like a tree structure, making decisions at each node based on a feature, leading to further nodes or outcomes (leaves). This model uses recursive dataset splitting for decision-making, known for its interpretability and visual clarity. In our study, the decision tree’s optimal size was determined through cross-validation. This process entailed pruning the tree to its most effective dimensions, thereby enhancing predictive accuracy. The model was applied to the test set to evaluate its effectiveness.
    
 ## Results
