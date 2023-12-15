@@ -1,0 +1,488 @@
+---
+title: "625finalcodes"
+author: "Haotian Zheng"
+date: "2023-12-15"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(mice)
+library(missForest)
+library(skimr)
+library(DataExplorer)
+library(Hmisc)
+library(parallel)
+library(parallelly)
+library(foreach)
+library(future)
+library(doParallel)
+library(mlbench)
+library(caret)
+library(MASS)
+library(e1071)
+library(randomForest)
+library(tree)
+```
+
+
+
+## PART I: Preprocessing Data
+### load data
+```{r}
+# Note: you may have to replace the all the paths in this R markdown with your own path, instead of "/home/htzheng".
+
+set.seed(625)
+load(file="/home/htzheng/625final/23380-0034-Data.rda")
+mydata = da23380.0034
+mydata= mydata[, !grepl("R15", names(mydata))]
+```
+
+
+### remove columns with missing values more than 20%
+```{r}
+missingcount = colSums(is.na(mydata)) / dim(mydata)[1]
+vrb_names = names(missingcount[missingcount < 0.2])
+mydata = mydata[, vrb_names]
+```
+
+
+
+## PART II: Missing Values
+### functions: split data into several parts
+```{r}
+sep_data = function(df, n) {
+  df <- df[sample(nrow(df)), ]
+
+  num_rows <- nrow(df)
+  rows_per_part <- floor(num_rows / n)
+  result = list()
+  
+  for (i in 1: n) {
+    part = df[((i - 1) * rows_per_part + 1): (i * rows_per_part), ]
+    result[[i]] = part
+  }
+  
+  return(result)
+}
+```
+
+### functions: use mice functions to fill in missing values
+```{r}
+fill_na = function(df) {
+  df_char = df[sapply(df, is.character)]
+  df_char = df_char[, 2:77]
+  df_char[] = lapply(df_char, as.factor)
+  df_char = as.data.frame(df_char)
+
+  df_num = df[sapply(df, is.numeric)]
+  df_num = as.data.frame(df_num)
+  
+  df.dat = mice(df_char, m = 1, maxit = 1)
+  non_na_df_char = complete(df.dat)
+  
+  df.dat = mice(df_num, m = 1, maxit = 1)
+  non_na_df_num = complete(df.dat)
+  
+  non_na_df = cbind(non_na_df_char, non_na_df_num)
+  return(non_na_df)
+}
+```
+
+### functions: mice_parallel
+```{r}
+mice_parallel = function(parts, n = 4) {
+  # rigister in each core
+  cl <- parallelly::makeClusterPSOCK(availableCores(), autoStop = TRUE)
+  clusterExport(cl, varlist = "fill_na")
+  registerDoParallel(cl)
+  
+  non_na_data = foreach(i = 1: n,
+                         .combine = rbind,
+                         .packages = "mice") %dopar% {
+                           fill_na(parts[[i]])
+                           }
+  write.csv(non_na_data, file = "/home/htzheng/625final/mice_data.csv", row.names = FALSE)
+  stopCluster(cl)
+  return(non_na_data)
+}
+```
+
+### functions: simple_mice
+```{r}
+simple_mice = function(data) {
+  # first run
+  non_na_data = mice(data, m = 1, maxit = 1)
+  # second run
+  non_na_data = mice(non_na_data, m = 1, maxit = 1)
+  return(non_na_data)
+}
+```
+
+### functions: random_prob
+```{r}
+random_prob = function(data) {
+  data =  as.matrix(data)
+  for (i in 1: dim(data)[2]) {
+    df = data[, i]
+    prob_i = table(df) / sum(is.na(df) == FALSE)
+    df[is.na(df)] = sample(names(prob_i), sum(is.na(df)), replace = TRUE, prob = prob_i)
+    data[, i] = df
+  }
+  data = as.data.frame(data)
+  return(data)
+}
+```
+
+
+### test mice_parallel(using 4 cores)
+about 1.92 hours
+```{r}
+start_time = Sys.time()
+
+# using 4 cores in default
+parts = sep_data(mydata, 4)
+non_na_data_mp = mice_parallel(parts, n = 4)
+
+end_time = Sys.time()
+total_time = end_time - start_time
+print("time for mice all")
+print(total_time)
+```
+
+### test simple_mice
+about 6.41 hours
+```{r}
+start_time = Sys.time()
+
+non_na_data_sp = simple_mice(mydata)
+
+end_time = Sys.time()
+total_time = end_time - start_time
+print("time for simple_mice")
+print(total_time)
+```
+
+### test random_prob
+about 7 seconds
+```{r}
+start_time = Sys.time()
+
+non_na_data_rp = random_prob(mydata)
+
+end_time = Sys.time()
+total_time = end_time - start_time
+print("time for random_prob")
+print(total_time)
+```
+
+
+
+## PART III: Machine Learning
+### load data
+```{r}
+data = non_na_data_mp
+
+# If you don't want to run the codes above, you could run the code below to load the non-missing data.
+#data = read_csv("/home/htzheng/625final/mice_data.csv")
+
+df = data[, !names(data)%in%c("COHORT")]
+```
+
+### features selection
+```{r}
+X_squared = sapply(1:79, function(i) {
+  stat = chisq.test(df[, i], df$C15CCMI)
+  stat$statistic
+})
+p_value = sapply(1:79, function(i) {
+  stat = chisq.test(df[, i], df$C15CCMI)
+  stat$p.value
+})
+
+names = names(df)
+indepedent = cbind(names,X_squared,p_value)
+head(indepedent)
+```
+
+### chi-squared test
+```{r}
+indepedent = as.data.frame(indepedent)
+typeof(indepedent$X_squared)
+table = indepedent[order(as.numeric(indepedent$X_squared),decreasing = T),]
+table$p_value = as.numeric(table$p_value)
+sorted_table = table[order(table$p_value, decreasing = FALSE), ]
+subset_table = table[table$p_value < 0.05, ]
+name = subset_table$names
+```
+
+### split
+```{r}
+# Create an index for splitting (70% training, 30% testing)
+splitIndex = createDataPartition(df$C15CCMI, p = 0.7, list = FALSE)
+
+# Create training and testing sets
+train_set = df[splitIndex, names(df) %in% name]
+test_set = df[-splitIndex, names(df) %in% name]
+```
+
+
+### models: glm-logistic regression
+```{r}
+glm.fit = glm(as.factor(C15CCMI) ~ ., data = train_set,family = binomial)
+```
+
+### test the accuracy of logistic model
+```{r}
+pred.glm = predict(glm.fit, test_set, type = "response")
+pred.glm[pred.glm > 0.5] <- 1
+pred.glm[pred.glm < 0.5] <- 0
+true = test_set$C15CCMI
+# Create a confusion matrix
+conf_matrix = table(pred.glm, true)
+
+# Display the confusion matrix
+print(conf_matrix)
+
+# Calculate accuracy
+accuracy = sum(diag(conf_matrix)) / sum(conf_matrix)
+print(paste("Accuracy:", accuracy))
+
+glm_accuracy = accuracy
+```
+
+
+### models: SVM
+```{r}
+train_1 = sample_n(train_set,10000)
+test_1 = sample_n(test_set,4200)
+```
+
+### tune the parameters
+```{r}
+# Loop over different values of cost
+for (i in seq_along(cost_values)) {
+  cost_value = cost_values[i]
+  
+  # Train SVM model
+  svm_model = svm(as.factor(C15CCMI) ~ ., data = train_1, kernel = "radial", cost = cost_value)
+  
+  # Make predictions on the test set
+  svm_predictions = predict(svm_model, test_1, type = "response")
+  
+  # Calculate accuracy
+  accuracy_values[i] = mean(svm_predictions == test_1$C15CCMI)
+}
+
+# Create a data frame for plotting
+plot_data = data.frame(cost = cost_values, accuracy = accuracy_values)
+
+# Plot the accuracy vs cost
+plot_svm = ggplot(plot_data, aes(x = cost, y = accuracy)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Accuracy vs Cost for SVM",
+       x = "Cost",
+       y = "Accuracy")+
+  theme(
+    plot.title.position = 'plot', 
+    plot.title = element_text(hjust = 0.5,size = 15,face = "bold"),
+    panel.background = element_rect(fill = "white"),
+    panel.border = element_rect(color = "black",  fill = NA, linewidth = 1.5),  # Set color of the border without filling
+    axis.text = element_text(color = "black",size = 15)  # Set axis text color to black
+  )
+acrc_svm = plot_data
+```
+
+
+### models: NB
+```{r}
+nb_model = naiveBayes(C15CCMI ~ ., data = train_set)
+print(nb_model)
+```
+
+### test the accuracy of Naive Bayes model
+```{r}
+pred.nb = predict(nb_model, test_set, type = "class")
+true = test_set$C15CCMI
+table(pred.nb, true)
+mean(pred.nb == true)
+```
+
+### tuning the value of Laplace
+```{r}
+# Try a wider range of laplace values
+laplace_values = seq(0, 2, by = 0.1)
+
+accuracies = c()
+
+best_accuracy = 0
+best_laplace = NULL
+
+for (laplace_val in laplace_values) {
+  nb_model = naiveBayes(C15CCMI ~ ., data = train_set, laplace = laplace_val)
+  
+  pred_nb = predict(nb_model, test_set, type = "class")
+  
+  accuracy = mean(pred_nb == true)
+  
+  cat("Laplace:", laplace_val, " - Accuracy:", accuracy, "\n")
+  
+  accuracies = c(accuracies, accuracy)
+  
+  if (accuracy > best_accuracy) {
+    best_accuracy = accuracy
+    best_laplace = laplace_val
+  }
+}
+
+# Plotting accuracy vs laplace_val
+plot_nb = plot(laplace_values, accuracies, type = "l", xlab = "Laplace Value", ylab = "Accuracy",
+     main = "Accuracy vs Laplace Value")
+
+cat("Best Laplace Value:", best_laplace, " - Best Accuracy:", best_accuracy, "\n")
+
+nb_laplace = best_laplace
+nb_accuracy = best_accuracy
+```
+
+
+### models: RF
+```{r}
+# Create a Random Forest model
+rf_model = randomForest(as.factor(C15CCMI) ~ ., data = train_set)
+```
+
+### test the accuracy of Random Forest
+```{r}
+pred.rf =  predict(rf_model, test_set)
+true = test_set$C15CCMI
+table(pred.rf, true)
+mean(pred.rf == true)
+```
+
+### tuning the parameters of Random Forest:ntree and mtry
+```{r}
+# Try different values for ntree and mtry
+ntree_values = c(100, 200, 300)
+mtry_values = c(sqrt(ncol(train_set)), log2(ncol(train_set)), 2, 5)  # Use numeric values
+
+best_accuracy = 0
+best_ntree = NULL
+best_mtry = NULL
+
+# Create vectors to store accuracies for ntree and mtry values
+accuracies_ntree = numeric(length(ntree_values))
+accuracies_mtry = numeric(length(mtry_values))
+
+for (i in seq_along(ntree_values)) {
+  ntree_val = ntree_values[i]
+  
+  for (j in seq_along(mtry_values)) {
+    mtry_val = mtry_values[j]
+    
+    rf_model = randomForest(as.factor(C15CCMI) ~ ., data = train_set, ntree = ntree_val, mtry = mtry_val)
+    
+    pred_rf = predict(rf_model, test_set)
+    
+    accuracy = mean(pred_rf == true)
+    
+    cat("ntree:", ntree_val, " - mtry:", mtry_val, " - Accuracy:", accuracy, "\n")
+    
+    # Update best accuracy and values if a better accuracy is found
+    if (accuracy > best_accuracy) {
+      best_accuracy <- accuracy
+      best_ntree <- ntree_val
+      best_mtry <- mtry_val
+    }
+    
+    # Store accuracies for plotting
+    accuracies_ntree[i] = accuracy
+    accuracies_mtry[j] = accuracy
+  }
+}
+
+cat("Best ntree Value:", best_ntree, " - Best mtry Value:", best_mtry, " - Best Accuracy:", best_accuracy, "\n")
+
+rf_best_ntree = best_ntree
+rf_best_mtry = best_mtry
+rf_best_accuracy = best_accuracy
+```
+
+### plot the result
+```{r}
+df2 = data.frame(mtry =c (8.831761,6.285402,2,5), 
+                acc_300 = c(0.8961359,0.8951797,0.8813094,0.894651))
+df1 = data.frame(ntree= c(100,200,300),acc_8 = c(0.8951685,0.8957084,0.8961359))
+ggplot(df1, aes(x = ntree, y = acc_8)) +
+  geom_line(size = 0.75) +
+  geom_point() +
+  labs(title = "Accuracy vs ntree with mtry = 8.831761",
+       x = "ntree",
+       y = "Accuracy") +
+  theme(
+    plot.title.position = 'plot', 
+    plot.title = element_text(hjust = 0.5,size = 15,face = "bold"),
+    panel.background = element_rect(fill = "white"),
+    panel.border = element_rect(color = "black",  fill = NA, linewidth = 1.5),  # Set color of the border without filling
+    axis.title.x = element_text(size = 15, face = "bold"),  # Set x-axis label size and make it bold
+    axis.title.y = element_text(size = 15, face = "bold"),
+    axis.text = element_text(color = "black",size = 15, face = "bold")  # Set axis text color to black
+  )
+
+ggplot(df2, aes(x = mtry, y = acc_300)) +
+  geom_line(size = 0.75) +
+  geom_point() +
+  labs(title = "Accuracy vs ntree with ntree = 300",
+       x = "mtry",
+       y = "Accuracy") +
+  theme(
+    plot.title.position = 'plot', 
+    plot.title = element_text(hjust = 0.5,size = 15,face = "bold"),
+    panel.background = element_rect(fill = "white"),
+    panel.border = element_rect(color = "black",  fill = NA, linewidth = 1.5),  # Set color of the border without filling
+    axis.title.x = element_text(size = 15, face = "bold"),  # Set x-axis label size and make it bold
+    axis.title.y = element_text(size = 15, face = "bold"),
+    axis.text = element_text(color = "black",size = 15, face = "bold")  # Set axis text color to black
+  )
+```
+
+
+### models: decision trees
+```{r}
+tree_model = tree(as.factor(C15CCMI) ~ ., data = train_set)
+
+# Make predictions on the test set
+tree_pred = predict(tree_model, newdata = test_set, type = "class")
+
+# Evaluate accuracy
+tree_accuracy = sum(tree_pred == test_set$C15CCMI) / nrow(test_set)
+print(paste("Decision Tree Accuracy:", tree_accuracy))
+
+dcst_accuracy = tree_accuracy
+```
+
+### optimal decision tree
+```{r}
+# Create a tree model with cross-validation
+tree_model = cv.tree(tree(as.factor(C15CCMI) ~ ., data = train_set))
+
+# Print the optimal tree size
+cat("Optimal Tree Size:", tree_model$size[which.min(tree_model$dev)], "\n")
+
+# Prune the tree to the optimal size
+pruned_tree_model = prune.tree(tree(as.factor(C15CCMI) ~ ., data = train_set), best = tree_model$size[which.min(tree_model$dev)])
+
+# Make predictions on the test set
+tree_pred = predict(pruned_tree_model, newdata = test_set, type = "class")
+
+# Evaluate accuracy
+tree_accuracy = sum(tree_pred == test_set$C15CCMI) / nrow(test_set)
+print(paste("Decision Tree Accuracy:", tree_accuracy))
+
+optm_accuracy = tree_accuracy
+```
