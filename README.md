@@ -32,9 +32,9 @@ We select the columns with "C15" in names. Thus we get the dataset with informat
 
 ## Feature Selection
 
- we have 79 features for now in 'mice_data29w.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
+ We have 79 features for now in 'mice_data29w.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
 
-- the structure of the dataset
+- The structure of the dataset
 
 ![Screenshot 2023-12-01 000938](https://github.com/sangyisu/625-project/assets/117102360/b701bc7d-9e98-4ebf-b8f9-9d4b02ca8fba)
 
@@ -47,14 +47,14 @@ We select the columns with "C15" in names. Thus we get the dataset with informat
 
 3.Nominal Variables: "GENDER" "RACE" "C15VRGENHTH" "C15VRMACT"   "C15VRSTAIR"  "C15VRPACCL"  "C15VRPWORK"  "C15VRMACCL"  "C15VRMWORK"  "C15VRPAIN"  "C15VRCALM"   "C15VRENERGY" "C15VRDOWN"   "C15VRSACT"  "C15VRPHCMP"  "C15VRMHCMP"  "C15ADLBTH"   "C15ADLDRS"   "C15ADLEAT"  "C15ADLCHR"   "C15ADLWLK"   "C15ADLTLT"     "C15CHSTEX"   "C15CHSTRST"  "C15SOBFLT"   "C15SOBSIT"   "C15SOBWLK"   "C15SOBSTR"   "C15FTNUMB"   "C15FTSENS"   "C15FTHC"  "C15FTSRS"    "C15PNART"    "C15PNBACK"   "C15DEPWEEK"  "C15CMPHTH"  "C15SMOKE"    "C15PAOTLK"   "C15FRMTLK"   "C15FRMPREV"  "C15CMPWHO"  "C15SRVDISP"  "C15SRVMODE"    "C15SRVLANG" 
 
-4. (number)continuous: "C15HDACT" "C15HDPHY" "C15HDMEN"  "C15PCTCMP" (4)
+4. Continuous(number): "C15HDACT" "C15HDPHY" "C15HDMEN"  "C15PCTCMP" (4)
 
 ![Screenshot 2023-11-30 121957](https://github.com/sangyisu/625-project/assets/117102360/6ca97866-a7d7-478a-9369-cf5e2ed15306)
 
   
 - Methods for feature selection
 1. Chi-Suquared Feature Selection
-   use pair-wise chi-squared test, and we only delete one column named “C15PAOTLK” (p=0.1869).
+   Use pair-wise chi-squared test, and we only delete one column named “C15PAOTLK” (p=0.1869).
    
 ![table1](https://github.com/sangyisu/625-project/assets/117102360/9048296e-8b7b-469c-9894-04b66f916ced)
 
