@@ -12,9 +12,10 @@ imputed data ("mice_data29w.csv" ) :  https://drive.google.com/file/d/1T7QF7F4Sp
 
 
 ## Challenges
-
-
-
+1. The significant challenge of handling a large and complex dataset.
+2. The Multivariate Imputation by Chained Equations (MICE) function, particularly using the Predictive Mean Matching (PMM) method, struggled with the multi-type nature of our data.
+3. The dataset was too large for imputation using mice and the imputation process was extremely slow.
+4. The imputation for each machine learning model was also time-consuming.
 
 ## preprocessing
 - dataset selection
