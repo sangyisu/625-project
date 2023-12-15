@@ -164,7 +164,8 @@ While our study contends with the challenge of the nature of the dataset, we rig
 
 Moreover, our study offers insights into efficient and effective data imputation techniques for large, mixed-type datasets, giving an idea of addressing the 'mice' function's limitations and time constraints. This contributes to more practical data handling methods. Future research should focus on enhancing the integrity of imputed data, with a particular emphasis on preserving the relationships between various types of variables. This direction is important for ensuring comprehensive and accurate data analysis in large-scale research scenarios.
 
-**Contribution** All members contributed to the project
+**Contribution** 
+All members participat in all steps and contributed to the project
 
 Missing data: Haotian Zheng
 
