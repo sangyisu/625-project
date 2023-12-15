@@ -35,10 +35,6 @@ We select the columns with "C15" in names. Thus we get the dataset with informat
 
  We have 79 features for now in 'mice_data29w.csv'. First we define most of them are categorical variables and we convert them to factor. Thus, it is more likely to be overfitting when we do Machine Learning Models.
 
-- The structure of the dataset
-
-![Screenshot 2023-12-01 000938](https://github.com/sangyisu/625-project/assets/117102360/b701bc7d-9e98-4ebf-b8f9-9d4b02ca8fba)
-
 
 - The types of Variables(79)
 
