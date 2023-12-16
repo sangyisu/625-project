@@ -18,18 +18,20 @@ imputed data ("mice_data29w.csv" ) :  https://drive.google.com/file/d/1T7QF7F4Sp
 4. The imputation for each machine learning model was also time-consuming.
 5. We used cluster in "Biostat" and "Great Lakes" to run the parallel processes.
 
-## preprocessing
-- Dataset selection
+## Preprocessing
+- Establish dataset
 
 We select the columns with "C15" in names. Thus we get the dataset with information of 2012 survey. And the dataset includes 296320 observations of 88 variables.
 
 - Missing data
 
-1. we select variables with low rate of missing data(<20%), and then we get a dataset with 296320 observations of 81 variables.
+1. Select variables with low rate of missing data(<20%), and then we get a dataset with 296320 observations of 81 variables.
 
-2. we delete ID and COHORT columns. (81-2 = 79)
+To refine the dataset for more effective analysis, variables with over 20% missing data were omitted, leading to a more manageable set of 296,320 entries across 81 variables.
 
-3. do imputation using mice function with 1 iterations. Then, we get the "mice_data29w.csv" file. The dataset includes 296320 observations of 79 variables.
+2. Delete ID and COHORT columns. (81-2 = 79)
+
+3. Do imputation using mice function with 1 iterations. Then, we get the "mice_data29w.csv" file. The dataset includes 296320 observations of 79 variables.
 
 ## Feature Selection
 
