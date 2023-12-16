@@ -101,7 +101,7 @@ The Decision Tree model operates like a tree structure, making decisions at each
 
 ![table2](https://github.com/sangyisu/625-project/assets/117102360/b869b85d-3aa5-4c97-8a1f-8877cfb0a735)
 
-Post-optimization, the models' accuracy was evaluated using diverse machine learning techniques. As shown in Table 2, the logistic regression model achieved an accuracy of 0.8967, while the SVM model reached 0.9133. The Naive Bayes model attained 0.7209, the Random Forest model recorded 0.8961, and the Decision Tree model yielded an accuracy of 0.8764.
+Post-optimization, the models' accuracy was evaluated using diverse machine learning techniques. As shown in the table above, the logistic regression model achieved an accuracy of 0.8967, while the SVM model reached 0.9133. The Naive Bayes model attained 0.7209, the Random Forest model recorded 0.8961, and the Decision Tree model yielded an accuracy of 0.8764.
 
 
 
