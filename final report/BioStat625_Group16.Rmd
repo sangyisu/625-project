@@ -2,8 +2,8 @@
 title: "Prediction of the risk of a Myocardial Infarction or Heart Attack using different Machine Learning "
 author: 
   - "Mimi Li"
-  - "Sangyi Su"
   - "Haotian Zheng"
+  - "Sangyi Su"
 date: "2023-12-13"
 output: 
   pdf_document
