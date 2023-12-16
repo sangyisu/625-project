@@ -40,6 +40,8 @@ set.seed(625)
 load(file="/home/htzheng/625final/23380-0034-Data.rda")
 mydata = da23380.0034
 mydata= mydata[, !grepl("R15", names(mydata))]
+
+sum(is.na(mydata))
 ```
 
 
@@ -48,6 +50,9 @@ mydata= mydata[, !grepl("R15", names(mydata))]
 missingcount = colSums(is.na(mydata)) / dim(mydata)[1]
 vrb_names = names(missingcount[missingcount < 0.2])
 mydata = mydata[, vrb_names]
+
+fct_names = names(mydata)[sapply(mydata, is.factor)]
+mydata[, fct_names] = as.character(mydata[, fct_names])
 ```
 
 
@@ -123,6 +128,31 @@ simple_mice = function(data) {
 }
 ```
 
+### functions: separate_mice
+```{r}
+separate_mice = function(data) {
+  # separate data into numeric data and character data
+  df_char = data[sapply(data, is.character)]
+  df_char = df_char[, 2:77]
+  df_char[] = lapply(df_char, as.factor)
+  df_char = as.data.frame(df_char)
+
+  df_num = data[sapply(data, is.numeric)]
+  df_num = as.data.frame(df_num)
+  
+  # fill na values separately
+  df.dat = mice(df_char, m = 1, maxit = 1)
+  non_na_df_char = complete(df.dat)
+  
+  df.dat = mice(df_num, m = 1, maxit = 1)
+  non_na_df_num = complete(df.dat)
+  
+  # combine
+  non_na_df = cbind(non_na_df_char, non_na_df_num)
+  return(non_na_df)
+}
+```
+
 ### functions: random_prob
 ```{r}
 random_prob = function(data) {
@@ -133,8 +163,8 @@ random_prob = function(data) {
     df[is.na(df)] = sample(names(prob_i), sum(is.na(df)), replace = TRUE, prob = prob_i)
     data[, i] = df
   }
-  data = as.data.frame(data)
-  return(data)
+  non_na_data = as.data.frame(data)
+  return(non_na_data)
 }
 ```
 
@@ -154,12 +184,12 @@ print("time for mice all")
 print(total_time)
 ```
 
-### test simple_mice
+### test separate_mice
 about 6.41 hours
 ```{r}
 start_time = Sys.time()
 
-non_na_data_sp = simple_mice(mydata)
+non_na_data_sp = separate_mice(mydata)
 
 end_time = Sys.time()
 total_time = end_time - start_time
