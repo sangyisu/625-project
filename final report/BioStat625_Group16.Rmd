@@ -2,8 +2,8 @@
 title: "Prediction of the risk of a Myocardial Infarction or Heart Attack using different Machine Learning "
 author: 
   - "Mimi Li"
-  - "Haotian Zheng"
   - "Sangyi Su"
+  - "Haotian Zheng"
 date: "2023-12-13"
 output: 
   pdf_document
@@ -95,7 +95,7 @@ Naive Bayes, a probabilistic classifier grounded in Bayes' theorem, operates und
 \end{minipage}
 \end{figure}
 ```
-#### Random forest
+#### Random Forest
 
 Random Forest, an ensemble learning method, combines multiple decision trees to enhance prediction accuracy and reduce overfitting. It trains each tree on a distinct random subset of the data and features. In our study, the 'ntree' (number of trees) and 'mtry' (number of features tried at each split) parameters were adjusted meticulously within the Random Forest model. The optimal configuration is ntree = 300 and mtry =8.831761.
 
@@ -150,7 +150,7 @@ Moreover, our study is based on the assumption that individuals who have heart a
 
 Another advantage of using long-term data is that it allows for a more comprehensive assessment of individuals who may be at high risk of heart attack but have no prior history of it. For instance, individuals without a history of heart disease but identified as high-risk would currently be classified as false predictions, reducing the accuracy of the model. However, if follow-up data show these individuals later developing heart disease, they should be included as true predictions.
 
-### *Missing data and optimization*
+### *Missing data and Optimization*
 
 The functionality of the 'mice' function is limited to handling datasets with a single data type. It is possible that 'mice' encodes categorical variables for the purpose of imputation and the critical issue arises in its inability to decode this information back successfully for imputation when dealing with varying data types. In cases where a dataset includes various types, like numeric and character, 'mice' will first impute missing values for one type (which is numeric in our study). In the second run, it will then address the other type. However, the exact mechanism of the 'mice' function in its two separate runs still remains unclear.
 
