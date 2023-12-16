@@ -31,7 +31,12 @@ To refine the dataset for more effective analysis, variables with over 20% missi
 
 2. Delete ID and COHORT columns. (81-2 = 79)
 
-3. Do imputation using mice function with 1 iterations. Then, we get the "mice_data29w.csv" file. The dataset includes 296320 observations of 79 variables.
+ID and Cohort columns are removed.
+
+3. Do imputation using mice function with 1 iterations. Then, we get the "mice_data.csv" file. The dataset includes 296320 observations of 79 variables.
+
+To solve the problem of low speed, parallel processing and data separating functions were adopted using the multi-core capabilities of the Great Lakes cluster. The core strategy involved the use of the 'foreach' function to simultaneously execute the imputation functions across multiple cores. Then the results from each processing unit were combined into a single, cohesive dataset. This approach improved the speed and overall effectiveness of our data imputation.
+
 
 ## Feature Selection
 
